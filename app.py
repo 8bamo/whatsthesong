@@ -31,13 +31,14 @@ LANG_OPTIONS = {
 I18N = {
     "de": {
         "hero_sub": "TikTok/Instagram-Link rein, Song erkennen, Streaming-Links raus.",
-        "intro": "Füge einen TikTok- oder Instagram-Link ein.",
+        "intro": "FÃƒÂ¼ge einen TikTok- oder Instagram-Link ein.",
         "url_label": "TikTok/Instagram URL",
         "url_placeholder": "https://www.tiktok.com/@user/video/... oder https://www.instagram.com/reel/...",
+        "submit": "Suche starten",
         "spin_analyze": "Analysiere Video...",
         "spin_links": "Suche Streaming-Links...",
         "err_read": "Fehler beim Auslesen des Links: {err}",
-        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfügen.",
+        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfÃƒÂ¼gen.",
         "detected_source": "Erkennungsquelle: {source}",
         "source_metadata": "Metadaten",
         "source_audio": "Audio-Match",
@@ -46,7 +47,7 @@ I18N = {
         "expand_queries": "Verwendete Suchbegriffe",
         "err_no_links": "Keine Streaming-Links gefunden.",
         "tip_no_links": "Instagram liefert oft keine Song-Metadaten. Dann kann kein sicherer Match entstehen.",
-        "caption_match_query": "Treffer über Suchbegriff: {query}",
+        "caption_match_query": "Treffer ÃƒÂ¼ber Suchbegriff: {query}",
         "unknown": "Unbekannt",
         "preview_title": "Audio-Preview",
         "preview_caption": "Spiele 10 Sekunden aus dem Video-Audio ab.",
@@ -58,6 +59,7 @@ I18N = {
         "intro": "Paste a TikTok or Instagram link.",
         "url_label": "TikTok/Instagram URL",
         "url_placeholder": "https://www.tiktok.com/@user/video/... or https://www.instagram.com/reel/...",
+        "submit": "Start search",
         "spin_analyze": "Analyzing video...",
         "spin_links": "Searching streaming links...",
         "err_read": "Error reading link: {err}",
@@ -78,46 +80,48 @@ I18N = {
         "preview_error": "Could not load audio preview: {err}",
     },
     "fr": {
-        "hero_sub": "Colle un lien TikTok/Instagram, détecte la musique, récupère les liens.",
+        "hero_sub": "Colle un lien TikTok/Instagram, dÃƒÂ©tecte la musique, rÃƒÂ©cupÃƒÂ¨re les liens.",
         "intro": "Colle un lien TikTok ou Instagram.",
         "url_label": "URL TikTok/Instagram",
         "url_placeholder": "https://www.tiktok.com/@user/video/... ou https://www.instagram.com/reel/...",
-        "spin_analyze": "Analyse de la vidéo...",
+        "submit": "Lancer la recherche",
+        "spin_analyze": "Analyse de la vidÃƒÂ©o...",
         "spin_links": "Recherche des liens streaming...",
         "err_read": "Erreur de lecture du lien : {err}",
         "err_invalid_url": "Saisis un lien TikTok ou Instagram.",
-        "detected_source": "Source de détection : {source}",
-        "source_metadata": "Métadonnées",
+        "detected_source": "Source de dÃƒÂ©tection : {source}",
+        "source_metadata": "MÃƒÂ©tadonnÃƒÂ©es",
         "source_audio": "Correspondance audio",
-        "badge_queries": "Requêtes : {count}",
-        "badge_region": "Région : DE",
-        "expand_queries": "Termes utilisés",
-        "err_no_links": "Aucun lien trouvé.",
-        "tip_no_links": "Instagram n'a souvent pas de métadonnées musicales fiables.",
-        "caption_match_query": "Trouvé via : {query}",
+        "badge_queries": "RequÃƒÂªtes : {count}",
+        "badge_region": "RÃƒÂ©gion : DE",
+        "expand_queries": "Termes utilisÃƒÂ©s",
+        "err_no_links": "Aucun lien trouvÃƒÂ©.",
+        "tip_no_links": "Instagram n'a souvent pas de mÃƒÂ©tadonnÃƒÂ©es musicales fiables.",
+        "caption_match_query": "TrouvÃƒÂ© via : {query}",
         "unknown": "Inconnu",
-        "preview_title": "Aperçu audio",
+        "preview_title": "AperÃƒÂ§u audio",
         "preview_caption": "Lire 10 secondes de l'audio.",
-        "preview_start": "Seconde de départ",
-        "preview_error": "Impossible de charger l'aperçu : {err}",
+        "preview_start": "Seconde de dÃƒÂ©part",
+        "preview_error": "Impossible de charger l'aperÃƒÂ§u : {err}",
     },
     "es": {
-        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la canción y obtén enlaces.",
+        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la canciÃƒÂ³n y obtÃƒÂ©n enlaces.",
         "intro": "Pega un enlace de TikTok o Instagram.",
         "url_label": "URL TikTok/Instagram",
         "url_placeholder": "https://www.tiktok.com/@user/video/... o https://www.instagram.com/reel/...",
+        "submit": "Iniciar busqueda",
         "spin_analyze": "Analizando video...",
         "spin_links": "Buscando enlaces...",
         "err_read": "Error al leer el enlace: {err}",
         "err_invalid_url": "Ingresa un enlace de TikTok o Instagram.",
-        "detected_source": "Fuente de detección: {source}",
+        "detected_source": "Fuente de detecciÃƒÂ³n: {source}",
         "source_metadata": "Metadatos",
         "source_audio": "Coincidencia de audio",
-        "badge_queries": "Búsquedas: {count}",
-        "badge_region": "Región: DE",
-        "expand_queries": "Términos usados",
+        "badge_queries": "BÃƒÂºsquedas: {count}",
+        "badge_region": "RegiÃƒÂ³n: DE",
+        "expand_queries": "TÃƒÂ©rminos usados",
         "err_no_links": "No se encontraron enlaces.",
-        "tip_no_links": "Instagram muchas veces no tiene metadatos de canción.",
+        "tip_no_links": "Instagram muchas veces no tiene metadatos de canciÃƒÂ³n.",
         "caption_match_query": "Coincidencia por: {query}",
         "unknown": "Desconocido",
         "preview_title": "Vista previa",
@@ -130,6 +134,7 @@ I18N = {
         "intro": "Incolla un link TikTok o Instagram.",
         "url_label": "URL TikTok/Instagram",
         "url_placeholder": "https://www.tiktok.com/@user/video/... oppure https://www.instagram.com/reel/...",
+        "submit": "Avvia ricerca",
         "spin_analyze": "Analisi video...",
         "spin_links": "Ricerca link...",
         "err_read": "Errore nella lettura del link: {err}",
@@ -184,58 +189,6 @@ def get_video_audio_info(url: str):
             "artists": info.get("artists") or [],
             "duration": info.get("duration") or 0,
         }
-
-
-@st.cache_data(show_spinner=False)
-def get_audio_preview_bytes(url: str, start_sec: int, duration_sec: int = 10):
-    try:
-        import imageio_ffmpeg
-    except Exception as exc:
-        return None, str(exc)
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp = Path(tmpdir)
-        in_template = str(tmp / "preview_input.%(ext)s")
-        out_mp3 = tmp / "preview.mp3"
-
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": in_template,
-            "quiet": True,
-            "no_warnings": True,
-            "noplaylist": True,
-        }
-
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                in_file = Path(ydl.prepare_filename(info))
-        except Exception as exc:
-            return None, str(exc)
-
-        ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-        cmd = [
-            ffmpeg,
-            "-y",
-            "-ss",
-            str(start_sec),
-            "-t",
-            str(duration_sec),
-            "-i",
-            str(in_file),
-            "-vn",
-            "-ac",
-            "2",
-            "-ar",
-            "44100",
-            "-b:a",
-            "192k",
-            str(out_mp3),
-        ]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-        if proc.returncode != 0 or not out_mp3.exists():
-            return None, "ffmpeg conversion failed"
-        return out_mp3.read_bytes(), None
 
 
 def recognize_song_from_audio(url: str):
@@ -397,15 +350,16 @@ def inject_styles():
         }
         section.main > div { max-width: 980px; padding-top: 0.6rem; }
         .hero { border: 1px solid #25324d; border-radius: 18px; padding: 1.2rem; background: linear-gradient(130deg,#101828,#12325c); margin-bottom: .9rem; }
-        .hero h1 { margin:0; font-size: clamp(1.7rem,3vw,2.4rem); }
+        .brand-logo-wrap { display:flex; justify-content:flex-start; }
+        .brand-logo { width:min(420px,100%); height:auto; display:block; }
         .hero p { margin:.55rem 0 0 0; color:#c5d8f7; }
-        .panel { margin-top:.6rem; }
-        .result-card { margin-top:.75rem; border:1px solid #25324d; border-radius:14px; background:#0f172a; padding:1rem; }
+        .panel { margin-top:1rem; }
+        .result-card { margin-top:1.25rem; border:1px solid #25324d; border-radius:14px; background:#0f172a; padding:1rem; }
         .result-title { margin:0; color:#f5f9ff; font-size:clamp(1.1rem,2vw,1.4rem); font-weight:700; }
         .result-sub { margin:.35rem 0 0 0; color:#9db0cf; font-size:.92rem; }
         .badge-row { display:flex; gap:.45rem; flex-wrap:wrap; margin-top:.7rem; }
         .badge { border-radius:999px; padding:.26rem .62rem; color:#d7fbe7; background:rgba(34,197,94,.14); border:1px solid rgba(34,197,94,.45); font-size:.78rem; font-weight:700; }
-        .platform-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:.85rem; }
+        .platform-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:1.25rem; margin-bottom:.85rem; }
         .platform-btn { text-decoration:none; min-height:44px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; color:#06101f !important; font-weight:700; background:linear-gradient(135deg,#34d399,#22c55e); border:1px solid rgba(0,0,0,.16); }
         .platform-btn.alt { color:#dbe7fb !important; background:linear-gradient(135deg,#1e293b,#27344d); border:1px solid #3c4d6f; }
         div[data-baseweb="select"] > div, div[data-baseweb="input"] > div { background:#0e162a !important; border:1px solid #334260 !important; color:#e6edf7 !important; }
@@ -437,7 +391,7 @@ def render_platform_buttons(links: dict):
 
 
 def main():
-    st.set_page_config(page_title="whatsthesong", page_icon="🎵", layout="centered")
+    st.set_page_config(page_title="whatsthesong", page_icon="Ã°Å¸Å½Âµ", layout="centered")
     inject_styles()
 
     language_label = st.selectbox("Language", list(LANG_OPTIONS.keys()), index=0)
@@ -446,7 +400,30 @@ def main():
     st.markdown(
         f"""
         <div class="hero">
-            <h1>whatsthesong</h1>
+            <div class="brand-logo-wrap">
+                <svg class="brand-logo" viewBox="0 0 980 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="whatsthesong logo">
+                    <defs>
+                        <linearGradient id="logoGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#19b7ff"/>
+                            <stop offset="100%" stop-color="#2af598"/>
+                        </linearGradient>
+                        <linearGradient id="logoGradB" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#27d0ff"/>
+                            <stop offset="100%" stop-color="#8df570"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(20,10)">
+                        <circle cx="130" cy="110" r="92" fill="none" stroke="url(#logoGradA)" stroke-width="14"/>
+                        <path d="M30 106 C 85 120, 100 50, 145 96 C 178 130, 198 68, 240 104" fill="none" stroke="url(#logoGradB)" stroke-width="16" stroke-linecap="round"/>
+                        <path d="M58 136 C 102 152, 125 92, 168 128 C 194 150, 216 110, 248 132" fill="none" stroke="#1dc7ff" stroke-opacity="0.55" stroke-width="10" stroke-linecap="round"/>
+                        <path d="M190 72 Q 228 52 242 78" fill="none" stroke="#2af598" stroke-width="10" stroke-linecap="round"/>
+                        <line x1="236" y1="48" x2="236" y2="90" stroke="url(#logoGradA)" stroke-width="10" stroke-linecap="round"/>
+                        <circle cx="236" cy="96" r="14" fill="url(#logoGradA)"/>
+                        <line x1="178" y1="170" x2="220" y2="214" stroke="url(#logoGradA)" stroke-width="16" stroke-linecap="round"/>
+                    </g>
+                    <text x="300" y="205" fill="#f6fbff" font-size="106" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-weight="700" letter-spacing="0.2">whatsthesong</text>
+                </svg>
+            </div>
             <p>{html.escape(tr(lang, "hero_sub"))}</p>
         </div>
         """,
@@ -454,9 +431,14 @@ def main():
     )
 
     st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.write(tr(lang, "intro"))
-    url = st.text_input(tr(lang, "url_label"), placeholder=tr(lang, "url_placeholder"))
+    with st.form("search_form", clear_on_submit=False):
+        st.write(tr(lang, "intro"))
+        url = st.text_input(tr(lang, "url_label"), placeholder=tr(lang, "url_placeholder"))
+        submitted = st.form_submit_button(tr(lang, "submit"), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
+
+    if not submitted:
+        return
 
     if not url:
         return
@@ -471,23 +453,6 @@ def main():
         except Exception as exc:
             st.error(tr(lang, "err_read", err=exc))
             return
-
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.markdown(f"### {tr(lang, 'preview_title')}")
-    st.caption(tr(lang, "preview_caption"))
-
-    total_duration = int(audio_info.get("duration") or 0)
-    max_start = max(total_duration - 10, 0)
-    start_sec = st.slider(tr(lang, "preview_start"), min_value=0, max_value=max_start, value=0, step=1) if max_start > 0 else 0
-
-    with st.spinner(tr(lang, "spin_analyze")):
-        preview_bytes, preview_err = get_audio_preview_bytes(url, start_sec, 10)
-
-    if preview_bytes:
-        st.audio(preview_bytes, format="audio/mp3")
-    elif preview_err:
-        st.caption(tr(lang, "preview_error", err=preview_err))
-    st.markdown("</div>", unsafe_allow_html=True)
 
     detection_label = tr(lang, "source_metadata")
     track = audio_info.get("track")
@@ -550,6 +515,7 @@ def main():
         st.caption(tr(lang, "caption_match_query", query=matched_query))
 
     render_platform_buttons(links)
+    st.markdown("<div style=''height: .6rem;''></div>", unsafe_allow_html=True)
 
     if entities:
         first_key = next(iter(entities))
@@ -560,3 +526,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
