@@ -1,10 +1,9 @@
-﻿import asyncio
-import html
+﻿import html
 import re
 import subprocess
 import tempfile
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 
 import requests
 import streamlit as st
@@ -19,20 +18,22 @@ GENERIC_TIKTOK_TRACK_HINTS = {
     "suono originale",
 }
 
+SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am")
+
 LANG_OPTIONS = {
-    "Deutsch": "de",
-    "English": "en",
-    "Francais": "fr",
-    "Espanol": "es",
-    "Italiano": "it",
+    "🇩🇪 Deutsch": "de",
+    "🇬🇧 English": "en",
+    "🇫🇷 Francais": "fr",
+    "🇪🇸 Espanol": "es",
+    "🇮🇹 Italiano": "it",
 }
 
 I18N = {
     "de": {
-        "hero_sub": "TikTok-Link rein, Song erkennen, Streaming-Links raus.",
+        "hero_sub": "TikTok/Instagram-Link rein, Song erkennen, Streaming-Links raus.",
         "intro": "Fuege einen TikTok-Link ein, um Spotify-, Apple-Music- und YouTube-Links zu finden.",
-        "url_label": "TikTok URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...",
+        "url_label": "TikTok/Instagram URL",
+        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
         "fingerprint_toggle": "Audio-Fingerprint nutzen (langsamer, aber genauer)",
         "spin_analyze": "Analysiere Video...",
         "spin_fingerprint": "Hoere Audio und erkenne Song...",
@@ -59,10 +60,10 @@ I18N = {
         "preview_error": "Audio-Preview konnte nicht geladen werden: {err}",
     },
     "en": {
-        "hero_sub": "Paste TikTok link, detect song, get streaming links.",
+        "hero_sub": "Paste TikTok/Instagram link, detect song, get streaming links.",
         "intro": "Paste a TikTok link to find Spotify, Apple Music, and YouTube links.",
-        "url_label": "TikTok URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...",
+        "url_label": "TikTok/Instagram URL",
+        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
         "fingerprint_toggle": "Use audio fingerprint (slower, more accurate)",
         "spin_analyze": "Analyzing video...",
         "spin_fingerprint": "Listening to audio and detecting song...",
@@ -89,10 +90,10 @@ I18N = {
         "preview_error": "Could not load audio preview: {err}",
     },
     "fr": {
-        "hero_sub": "Colle un lien TikTok, detecte la musique, recupere les liens streaming.",
+        "hero_sub": "Colle un lien TikTok/Instagram, detecte la musique, recupere les liens streaming.",
         "intro": "Colle un lien TikTok pour trouver les liens Spotify, Apple Music et YouTube.",
-        "url_label": "URL TikTok",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...",
+        "url_label": "URL TikTok/Instagram",
+        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
         "fingerprint_toggle": "Utiliser l'empreinte audio (plus lent, plus precis)",
         "spin_analyze": "Analyse de la video...",
         "spin_fingerprint": "Analyse audio et detection du titre...",
@@ -119,10 +120,10 @@ I18N = {
         "preview_error": "Impossible de charger l'apercu audio : {err}",
     },
     "es": {
-        "hero_sub": "Pega un enlace de TikTok, detecta la cancion y obten enlaces de streaming.",
+        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la cancion y obten enlaces de streaming.",
         "intro": "Pega un enlace de TikTok para encontrar enlaces de Spotify, Apple Music y YouTube.",
-        "url_label": "URL de TikTok",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...",
+        "url_label": "URL TikTok/Instagram",
+        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
         "fingerprint_toggle": "Usar huella de audio (mas lento, mas preciso)",
         "spin_analyze": "Analizando video...",
         "spin_fingerprint": "Escuchando audio y detectando cancion...",
@@ -149,10 +150,10 @@ I18N = {
         "preview_error": "No se pudo cargar la vista previa de audio: {err}",
     },
     "it": {
-        "hero_sub": "Incolla il link TikTok, rileva la canzone, ottieni i link streaming.",
+        "hero_sub": "Incolla il link TikTok/Instagram, rileva la canzone, ottieni i link streaming.",
         "intro": "Incolla un link TikTok per trovare i link Spotify, Apple Music e YouTube.",
-        "url_label": "URL TikTok",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...",
+        "url_label": "URL TikTok/Instagram",
+        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
         "fingerprint_toggle": "Usa impronta audio (piu lento, piu preciso)",
         "spin_analyze": "Analisi del video...",
         "spin_fingerprint": "Ascolto audio e rilevamento brano...",
@@ -186,6 +187,14 @@ def tr(lang: str, key: str, **kwargs) -> str:
     return template.format(**kwargs) if kwargs else template
 
 
+def is_supported_video_url(url: str) -> bool:
+    try:
+        host = (urlparse(url).netloc or "").lower()
+    except Exception:
+        return False
+    return any(h in host for h in SUPPORTED_VIDEO_HOST_HINTS)
+
+
 def get_tiktok_audio_info(url: str):
     ydl_opts = {"format": "bestaudio/best", "noplaylist": True, "quiet": True, "no_warnings": True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -202,57 +211,6 @@ def get_tiktok_audio_info(url: str):
         except Exception as exc:
             return None, str(exc)
 
-
-def recognize_song_from_tiktok_audio(url: str, lang: str):
-    try:
-        import imageio_ffmpeg
-        from shazamio import Shazam
-    except Exception:
-        return None, tr(lang, "err_packages")
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp = Path(tmpdir)
-        out_template = str(tmp / "input.%(ext)s")
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": out_template,
-            "quiet": True,
-            "no_warnings": True,
-            "noplaylist": True,
-        }
-
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                in_file = Path(ydl.prepare_filename(info))
-        except Exception as exc:
-            return None, tr(lang, "err_download", err=exc)
-
-        ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-        duration = float(info.get("duration") or 36)
-        starts = [s for s in [0, 4, 8, 12, 16, 20, 24] if s < max(duration - 3, 0)]
-
-        async def recognize(path: str):
-            shazam = Shazam()
-            return await shazam.recognize(path)
-
-        for start in starts:
-            seg_file = tmp / f"seg_{start}.wav"
-            cmd = [ffmpeg, "-y", "-ss", str(start), "-t", "12", "-i", str(in_file), "-ac", "1", "-ar", "44100", str(seg_file)]
-            proc = subprocess.run(cmd, capture_output=True, text=True)
-            if proc.returncode != 0 or not seg_file.exists() or seg_file.stat().st_size < 50000:
-                continue
-            try:
-                result = asyncio.run(recognize(str(seg_file)))
-            except Exception:
-                continue
-            track = result.get("track", {}) if isinstance(result, dict) else {}
-            title = track.get("title")
-            artist = track.get("subtitle")
-            if title and artist:
-                return {"title": title, "artist": artist, "query": f"{title} {artist}", "source": tr(lang, "source_fingerprint")}, None
-
-    return None, tr(lang, "err_no_fp_match")
 
 
 @st.cache_data(show_spinner=False)
@@ -433,6 +391,16 @@ def inject_styles():
             font-family: 'Space Grotesk', sans-serif;
         }
 
+        
+        header[data-testid="stHeader"],
+        div[data-testid="stToolbar"],
+        div[data-testid="stDecoration"],
+        #MainMenu,
+        footer {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+        }
         .stApp {
             background:
                 radial-gradient(700px 300px at 8% -10%, rgba(34,197,94,0.16), transparent 70%),
@@ -443,7 +411,7 @@ def inject_styles():
 
         section.main > div {
             max-width: 980px;
-            padding-top: 1.3rem;
+            padding-top: 0.55rem;
             padding-bottom: 2rem;
         }
 
@@ -470,11 +438,11 @@ def inject_styles():
         }
 
         .panel {
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(11,18,32,0.92));
-            padding: 1rem;
-            margin-top: 0.75rem;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            padding: 0;
+            margin-top: 0.45rem;
         }
 
         .panel-title {
@@ -638,10 +606,13 @@ def main():
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     st.markdown(f'<p class="panel-title">{html.escape(tr(lang, "intro"))}</p>', unsafe_allow_html=True)
     url = st.text_input(tr(lang, "url_label"), placeholder=tr(lang, "url_placeholder"))
-    use_fingerprint = st.checkbox(tr(lang, "fingerprint_toggle"), value=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     if not url:
+        return
+
+    if not is_supported_video_url(url):
+        st.error("Please use a TikTok or Instagram URL.")
         return
 
     with st.spinner(tr(lang, "spin_analyze")):
@@ -669,31 +640,18 @@ def main():
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    primary_queries = []
     detection_label = tr(lang, "source_metadata")
-
-    if use_fingerprint:
-        with st.spinner(tr(lang, "spin_fingerprint")):
-            fp_match, fp_err = recognize_song_from_tiktok_audio(url, lang)
-        if fp_match:
-            detection_label = fp_match["source"]
-            primary_queries = [fp_match["query"], fp_match["title"], fp_match["artist"]]
-            st.success(tr(lang, "success_fp", title=fp_match["title"], artist=fp_match["artist"]))
-        else:
-            st.warning(tr(lang, "warn_no_fp", err=fp_err))
 
     fallback_queries = build_search_queries(audio_info)
     queries, seen = [], set()
-    for q in primary_queries + fallback_queries:
+    for q in fallback_queries:
         n = q.lower().strip() if q else ""
         if n and n not in seen:
             queries.append(q)
             seen.add(n)
 
     track, artist, title = audio_info.get("track"), audio_info.get("artist"), audio_info.get("title")
-    if primary_queries:
-        detected_text = primary_queries[0]
-    elif track and artist and not is_generic_tiktok_track(track):
+    if track and artist and not is_generic_tiktok_track(track):
         detected_text = f"{track} - {artist}"
     else:
         detected_text = title or tr(lang, "unknown")
@@ -741,3 +699,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
