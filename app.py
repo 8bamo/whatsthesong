@@ -10,15 +10,15 @@ import streamlit as st
 import yt_dlp
 
 REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0 (whatsthesong local app)"}
-GENERIC_TIKTOK_TRACK_HINTS = {
+SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am")
+GENERIC_TRACK_HINTS = {
     "original",
     "original sound",
     "som original",
     "son original",
     "suono originale",
+    "video by",
 }
-
-SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am")
 
 LANG_OPTIONS = {
     "🇩🇪 Deutsch": "de",
@@ -31,29 +31,23 @@ LANG_OPTIONS = {
 I18N = {
     "de": {
         "hero_sub": "TikTok/Instagram-Link rein, Song erkennen, Streaming-Links raus.",
-        "intro": "Fuege einen TikTok-Link ein, um Spotify-, Apple-Music- und YouTube-Links zu finden.",
+        "intro": "Füge einen TikTok- oder Instagram-Link ein.",
         "url_label": "TikTok/Instagram URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
-        "fingerprint_toggle": "Audio-Fingerprint nutzen (langsamer, aber genauer)",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... oder https://www.instagram.com/reel/...",
         "spin_analyze": "Analysiere Video...",
-        "spin_fingerprint": "Hoere Audio und erkenne Song...",
         "spin_links": "Suche Streaming-Links...",
-        "err_read": "Fehler beim Auslesen des TikTok-Links: {err}",
-        "warn_no_fp": "Kein Audio-Match: {err}. Nutze Fallback ueber Metadaten.",
-        "success_fp": "Audio-Match: {title} - {artist}",
+        "err_read": "Fehler beim Auslesen des Links: {err}",
+        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfügen.",
         "detected_source": "Erkennungsquelle: {source}",
-        "source_metadata": "TikTok-Metadaten",
-        "source_fingerprint": "Audio Fingerprint (Shazam)",
+        "source_metadata": "Metadaten",
+        "source_audio": "Audio-Match",
         "badge_queries": "Suchbegriffe: {count}",
         "badge_region": "Region: DE",
         "expand_queries": "Verwendete Suchbegriffe",
-        "err_no_links": "Leider konnten keine Streaming-Links gefunden werden.",
-        "tip_no_links": "Tipp: Manche TikToks nutzen keinen offiziellen Song oder stark veraenderte Remixe.",
-        "caption_match_query": "Treffer ueber Suchbegriff: {query}",
+        "err_no_links": "Keine Streaming-Links gefunden.",
+        "tip_no_links": "Instagram liefert oft keine Song-Metadaten. Dann kann kein sicherer Match entstehen.",
+        "caption_match_query": "Treffer über Suchbegriff: {query}",
         "unknown": "Unbekannt",
-        "err_packages": "Audio-Fingerprint-Pakete fehlen. Bitte requirements installieren.",
-        "err_download": "Audio-Download fehlgeschlagen: {err}",
-        "err_no_fp_match": "Kein Fingerprint-Match gefunden",
         "preview_title": "Audio-Preview",
         "preview_caption": "Spiele 10 Sekunden aus dem Video-Audio ab.",
         "preview_start": "Startsekunde",
@@ -61,123 +55,99 @@ I18N = {
     },
     "en": {
         "hero_sub": "Paste TikTok/Instagram link, detect song, get streaming links.",
-        "intro": "Paste a TikTok link to find Spotify, Apple Music, and YouTube links.",
+        "intro": "Paste a TikTok or Instagram link.",
         "url_label": "TikTok/Instagram URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
-        "fingerprint_toggle": "Use audio fingerprint (slower, more accurate)",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... or https://www.instagram.com/reel/...",
         "spin_analyze": "Analyzing video...",
-        "spin_fingerprint": "Listening to audio and detecting song...",
         "spin_links": "Searching streaming links...",
-        "err_read": "Error reading TikTok link: {err}",
-        "warn_no_fp": "No audio match: {err}. Falling back to metadata.",
-        "success_fp": "Audio match: {title} - {artist}",
+        "err_read": "Error reading link: {err}",
+        "err_invalid_url": "Please enter a TikTok or Instagram URL.",
         "detected_source": "Detection source: {source}",
-        "source_metadata": "TikTok metadata",
-        "source_fingerprint": "Audio fingerprint (Shazam)",
+        "source_metadata": "Metadata",
+        "source_audio": "Audio match",
         "badge_queries": "Queries: {count}",
         "badge_region": "Region: DE",
         "expand_queries": "Used search terms",
-        "err_no_links": "No streaming links could be found.",
-        "tip_no_links": "Tip: some TikToks use unofficial songs or heavily edited remixes.",
+        "err_no_links": "No streaming links found.",
+        "tip_no_links": "Instagram often has no song metadata. Then no reliable match is possible.",
         "caption_match_query": "Matched via query: {query}",
         "unknown": "Unknown",
-        "err_packages": "Audio fingerprint packages are missing. Please install requirements.",
-        "err_download": "Audio download failed: {err}",
-        "err_no_fp_match": "No fingerprint match found",
         "preview_title": "Audio preview",
         "preview_caption": "Play 10 seconds from the video audio.",
         "preview_start": "Start second",
         "preview_error": "Could not load audio preview: {err}",
     },
     "fr": {
-        "hero_sub": "Colle un lien TikTok/Instagram, detecte la musique, recupere les liens streaming.",
-        "intro": "Colle un lien TikTok pour trouver les liens Spotify, Apple Music et YouTube.",
+        "hero_sub": "Colle un lien TikTok/Instagram, détecte la musique, récupère les liens.",
+        "intro": "Colle un lien TikTok ou Instagram.",
         "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
-        "fingerprint_toggle": "Utiliser l'empreinte audio (plus lent, plus precis)",
-        "spin_analyze": "Analyse de la video...",
-        "spin_fingerprint": "Analyse audio et detection du titre...",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... ou https://www.instagram.com/reel/...",
+        "spin_analyze": "Analyse de la vidéo...",
         "spin_links": "Recherche des liens streaming...",
-        "err_read": "Erreur lors de la lecture du lien TikTok : {err}",
-        "warn_no_fp": "Aucune correspondance audio : {err}. Repli sur les metadonnees.",
-        "success_fp": "Correspondance audio : {title} - {artist}",
-        "detected_source": "Source de detection : {source}",
-        "source_metadata": "Metadonnees TikTok",
-        "source_fingerprint": "Empreinte audio (Shazam)",
-        "badge_queries": "Requetes : {count}",
-        "badge_region": "Region : DE",
-        "expand_queries": "Termes de recherche utilises",
-        "err_no_links": "Aucun lien streaming trouve.",
-        "tip_no_links": "Astuce : certains TikToks utilisent des sons non officiels ou des remixes tres modifies.",
-        "caption_match_query": "Trouve via la requete : {query}",
+        "err_read": "Erreur de lecture du lien : {err}",
+        "err_invalid_url": "Saisis un lien TikTok ou Instagram.",
+        "detected_source": "Source de détection : {source}",
+        "source_metadata": "Métadonnées",
+        "source_audio": "Correspondance audio",
+        "badge_queries": "Requêtes : {count}",
+        "badge_region": "Région : DE",
+        "expand_queries": "Termes utilisés",
+        "err_no_links": "Aucun lien trouvé.",
+        "tip_no_links": "Instagram n'a souvent pas de métadonnées musicales fiables.",
+        "caption_match_query": "Trouvé via : {query}",
         "unknown": "Inconnu",
-        "err_packages": "Paquets d'empreinte audio manquants. Installe les dependances.",
-        "err_download": "Echec du telechargement audio : {err}",
-        "err_no_fp_match": "Aucune correspondance d'empreinte trouvee",
-        "preview_title": "Apercu audio",
-        "preview_caption": "Lire 10 secondes de l'audio de la video.",
-        "preview_start": "Seconde de depart",
-        "preview_error": "Impossible de charger l'apercu audio : {err}",
+        "preview_title": "Aperçu audio",
+        "preview_caption": "Lire 10 secondes de l'audio.",
+        "preview_start": "Seconde de départ",
+        "preview_error": "Impossible de charger l'aperçu : {err}",
     },
     "es": {
-        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la cancion y obten enlaces de streaming.",
-        "intro": "Pega un enlace de TikTok para encontrar enlaces de Spotify, Apple Music y YouTube.",
+        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la canción y obtén enlaces.",
+        "intro": "Pega un enlace de TikTok o Instagram.",
         "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
-        "fingerprint_toggle": "Usar huella de audio (mas lento, mas preciso)",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... o https://www.instagram.com/reel/...",
         "spin_analyze": "Analizando video...",
-        "spin_fingerprint": "Escuchando audio y detectando cancion...",
-        "spin_links": "Buscando enlaces de streaming...",
-        "err_read": "Error al leer el enlace de TikTok: {err}",
-        "warn_no_fp": "Sin coincidencia de audio: {err}. Uso de metadatos como respaldo.",
-        "success_fp": "Coincidencia de audio: {title} - {artist}",
-        "detected_source": "Fuente de deteccion: {source}",
-        "source_metadata": "Metadatos de TikTok",
-        "source_fingerprint": "Huella de audio (Shazam)",
-        "badge_queries": "Busquedas: {count}",
-        "badge_region": "Region: DE",
-        "expand_queries": "Terminos de busqueda usados",
-        "err_no_links": "No se pudieron encontrar enlaces de streaming.",
-        "tip_no_links": "Consejo: algunos TikToks usan canciones no oficiales o remixes muy editados.",
-        "caption_match_query": "Coincidencia por busqueda: {query}",
+        "spin_links": "Buscando enlaces...",
+        "err_read": "Error al leer el enlace: {err}",
+        "err_invalid_url": "Ingresa un enlace de TikTok o Instagram.",
+        "detected_source": "Fuente de detección: {source}",
+        "source_metadata": "Metadatos",
+        "source_audio": "Coincidencia de audio",
+        "badge_queries": "Búsquedas: {count}",
+        "badge_region": "Región: DE",
+        "expand_queries": "Términos usados",
+        "err_no_links": "No se encontraron enlaces.",
+        "tip_no_links": "Instagram muchas veces no tiene metadatos de canción.",
+        "caption_match_query": "Coincidencia por: {query}",
         "unknown": "Desconocido",
-        "err_packages": "Faltan paquetes de huella de audio. Instala los requisitos.",
-        "err_download": "Error al descargar audio: {err}",
-        "err_no_fp_match": "No se encontro coincidencia de huella",
-        "preview_title": "Vista previa de audio",
-        "preview_caption": "Reproduce 10 segundos del audio del video.",
-        "preview_start": "Segundo de inicio",
-        "preview_error": "No se pudo cargar la vista previa de audio: {err}",
+        "preview_title": "Vista previa",
+        "preview_caption": "Reproduce 10 segundos de audio.",
+        "preview_start": "Segundo inicial",
+        "preview_error": "No se pudo cargar el audio: {err}",
     },
     "it": {
-        "hero_sub": "Incolla il link TikTok/Instagram, rileva la canzone, ottieni i link streaming.",
-        "intro": "Incolla un link TikTok per trovare i link Spotify, Apple Music e YouTube.",
+        "hero_sub": "Incolla il link TikTok/Instagram, rileva la canzone, ottieni i link.",
+        "intro": "Incolla un link TikTok o Instagram.",
         "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/...  oder https://www.instagram.com/reel/...",
-        "fingerprint_toggle": "Usa impronta audio (piu lento, piu preciso)",
-        "spin_analyze": "Analisi del video...",
-        "spin_fingerprint": "Ascolto audio e rilevamento brano...",
-        "spin_links": "Ricerca link streaming...",
-        "err_read": "Errore nella lettura del link TikTok: {err}",
-        "warn_no_fp": "Nessuna corrispondenza audio: {err}. Uso fallback metadati.",
-        "success_fp": "Corrispondenza audio: {title} - {artist}",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... oppure https://www.instagram.com/reel/...",
+        "spin_analyze": "Analisi video...",
+        "spin_links": "Ricerca link...",
+        "err_read": "Errore nella lettura del link: {err}",
+        "err_invalid_url": "Inserisci un link TikTok o Instagram.",
         "detected_source": "Fonte rilevamento: {source}",
-        "source_metadata": "Metadati TikTok",
-        "source_fingerprint": "Impronta audio (Shazam)",
+        "source_metadata": "Metadati",
+        "source_audio": "Corrispondenza audio",
         "badge_queries": "Query: {count}",
         "badge_region": "Regione: DE",
-        "expand_queries": "Termini di ricerca usati",
-        "err_no_links": "Nessun link streaming trovato.",
-        "tip_no_links": "Suggerimento: alcuni TikTok usano brani non ufficiali o remix molto modificati.",
-        "caption_match_query": "Trovato con query: {query}",
+        "expand_queries": "Termini usati",
+        "err_no_links": "Nessun link trovato.",
+        "tip_no_links": "Instagram spesso non fornisce metadati audio affidabili.",
+        "caption_match_query": "Trovato con: {query}",
         "unknown": "Sconosciuto",
-        "err_packages": "Pacchetti impronta audio mancanti. Installa i requisiti.",
-        "err_download": "Download audio fallito: {err}",
-        "err_no_fp_match": "Nessuna corrispondenza impronta trovata",
         "preview_title": "Anteprima audio",
-        "preview_caption": "Riproduci 10 secondi dell'audio del video.",
+        "preview_caption": "Riproduci 10 secondi di audio.",
         "preview_start": "Secondo iniziale",
-        "preview_error": "Impossibile caricare l'anteprima audio: {err}",
+        "preview_error": "Impossibile caricare l'audio: {err}",
     },
 }
 
@@ -195,22 +165,25 @@ def is_supported_video_url(url: str) -> bool:
     return any(h in host for h in SUPPORTED_VIDEO_HOST_HINTS)
 
 
-def get_tiktok_audio_info(url: str):
+def is_generic_track(text: str | None) -> bool:
+    if not text:
+        return True
+    t = text.strip().lower()
+    return any(h in t for h in GENERIC_TRACK_HINTS)
+
+
+def get_video_audio_info(url: str):
     ydl_opts = {"format": "bestaudio/best", "noplaylist": True, "quiet": True, "no_warnings": True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        try:
-            info = ydl.extract_info(url, download=False)
-            return {
-                "track": info.get("track"),
-                "artist": info.get("artist"),
-                "title": info.get("title"),
-                "description": info.get("description") or "",
-                "artists": info.get("artists") or [],
-                "duration": info.get("duration") or 0,
-            }, None
-        except Exception as exc:
-            return None, str(exc)
-
+        info = ydl.extract_info(url, download=False)
+        return {
+            "track": info.get("track"),
+            "artist": info.get("artist"),
+            "title": info.get("title"),
+            "description": info.get("description") or "",
+            "artists": info.get("artists") or [],
+            "duration": info.get("duration") or 0,
+        }
 
 
 @st.cache_data(show_spinner=False)
@@ -224,6 +197,7 @@ def get_audio_preview_bytes(url: str, start_sec: int, duration_sec: int = 10):
         tmp = Path(tmpdir)
         in_template = str(tmp / "preview_input.%(ext)s")
         out_mp3 = tmp / "preview.mp3"
+
         ydl_opts = {
             "format": "bestaudio/best",
             "outtmpl": in_template,
@@ -231,6 +205,7 @@ def get_audio_preview_bytes(url: str, start_sec: int, duration_sec: int = 10):
             "no_warnings": True,
             "noplaylist": True,
         }
+
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -263,51 +238,90 @@ def get_audio_preview_bytes(url: str, start_sec: int, duration_sec: int = 10):
         return out_mp3.read_bytes(), None
 
 
-def is_generic_tiktok_track(track_name: str | None) -> bool:
-    if not track_name:
-        return True
-    return any(h in track_name.strip().lower() for h in GENERIC_TIKTOK_TRACK_HINTS)
+def recognize_song_from_audio(url: str):
+    try:
+        import asyncio
+        import imageio_ffmpeg
+        from shazamio import Shazam
+    except Exception:
+        return None
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp = Path(tmpdir)
+        in_template = str(tmp / "fp_input.%(ext)s")
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": in_template,
+            "quiet": True,
+            "no_warnings": True,
+            "noplaylist": True,
+        }
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                in_file = Path(ydl.prepare_filename(info))
+        except Exception:
+            return None
+
+        ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+        duration = float(info.get("duration") or 30)
+        starts = [s for s in [0, 4, 8, 12, 16, 20] if s < max(duration - 3, 0)]
+
+        async def recognize(path: str):
+            shazam = Shazam()
+            return await shazam.recognize(path)
+
+        for start in starts:
+            seg_file = tmp / f"seg_{start}.wav"
+            cmd = [ffmpeg, "-y", "-ss", str(start), "-t", "12", "-i", str(in_file), "-ac", "1", "-ar", "44100", str(seg_file)]
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            if proc.returncode != 0 or not seg_file.exists() or seg_file.stat().st_size < 50000:
+                continue
+            try:
+                result = asyncio.run(recognize(str(seg_file)))
+            except Exception:
+                continue
+            track = result.get("track", {}) if isinstance(result, dict) else {}
+            title = track.get("title")
+            artist = track.get("subtitle")
+            if title and artist:
+                return {"title": title, "artist": artist}
+    return None
 
 
 def clean_query(text: str | None) -> str:
     if not text:
         return ""
-    text = re.sub(r"https?://\S+", " ", text).replace("#", " ")
+    text = re.sub(r"https?://\S+", " ", text)
+    text = re.sub(r"#[^\s]+", " ", text)
     text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
 
-def extract_hashtags(text: str | None) -> list[str]:
-    return re.findall(r"#([a-zA-Z0-9_\.]+)", text or "")
-
-
 def build_search_queries(audio_info: dict) -> list[str]:
-    track, artist, title = audio_info.get("track"), audio_info.get("artist"), audio_info.get("title")
-    description, artists = audio_info.get("description"), audio_info.get("artists") or []
+    track = audio_info.get("track")
+    artist = audio_info.get("artist")
+    title = audio_info.get("title")
+    description = audio_info.get("description")
+
     queries: list[str] = []
+    if track and artist and not is_generic_track(track):
+        queries += [f"{track} {artist}", track, artist]
 
-    if track and artist and not is_generic_tiktok_track(track):
-        queries += [f"{track} {artist}", track]
-    elif track and not is_generic_tiktok_track(track):
-        queries.append(track)
+    title_q = clean_query(title)
+    if title_q and not title_q.lower().startswith("video by"):
+        queries.append(title_q)
 
-    if artist:
-        queries.append(artist)
-    queries += [str(a) for a in artists[:2] if a]
-
-    for q in [clean_query(title), clean_query(description)]:
-        if q:
-            queries.append(q)
-
-    for tag in (extract_hashtags(title) + extract_hashtags(description))[:5]:
-        if len(tag) > 2:
-            queries.append(tag.replace(".", " "))
+    desc_q = clean_query(description)
+    if desc_q and len(desc_q.split()) <= 6:
+        queries.append(desc_q)
 
     out, seen = [], set()
     for q in queries:
         n = q.lower().strip()
         if n and n not in seen and len(n) >= 3:
-            out.append(q.strip())
+            out.append(q)
             seen.add(n)
     return out[:8]
 
@@ -374,195 +388,31 @@ def inject_styles():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
-
-        :root {
-            --bg: #060b16;
-            --panel: #0f172a;
-            --panel-2: #111c34;
-            --line: #25324d;
-            --text: #e6edf7;
-            --muted: #9db0cf;
-            --accent: #22c55e;
-            --accent-2: #06b6d4;
-        }
-
-        html, body, [class*="css"]  {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        
-        header[data-testid="stHeader"],
-        div[data-testid="stToolbar"],
-        div[data-testid="stDecoration"],
-        #MainMenu,
-        footer {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-        }
+        header[data-testid="stHeader"], div[data-testid="stToolbar"], div[data-testid="stDecoration"], #MainMenu, footer { display:none !important; }
         .stApp {
-            background:
-                radial-gradient(700px 300px at 8% -10%, rgba(34,197,94,0.16), transparent 70%),
-                radial-gradient(850px 400px at 100% 0%, rgba(6,182,212,0.18), transparent 65%),
-                var(--bg);
-            color: var(--text);
-        }
-
-        section.main > div {
-            max-width: 980px;
-            padding-top: 0.55rem;
-            padding-bottom: 2rem;
-        }
-
-        .hero {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: linear-gradient(135deg, #0b1220 0%, #10233f 65%, #0c4a6e 100%);
-            padding: 1.2rem 1.2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-            margin-bottom: 0.9rem;
-        }
-
-        .hero h1 {
-            margin: 0;
-            color: #f8fbff;
-            font-size: clamp(1.7rem, 3vw, 2.4rem);
-            line-height: 1.08;
-        }
-
-        .hero p {
-            margin: 0.55rem 0 0 0;
-            color: #c5d8f7;
-            font-size: 1rem;
-        }
-
-        .panel {
-            border: none;
-            border-radius: 0;
-            background: transparent;
-            padding: 0;
-            margin-top: 0.45rem;
-        }
-
-        .panel-title {
-            margin: 0 0 0.35rem 0;
+            background: radial-gradient(700px 300px at 10% -10%, rgba(34,197,94,0.16), transparent 70%),
+                        radial-gradient(850px 400px at 100% 0%, rgba(6,182,212,0.18), transparent 65%),
+                        #060b16;
             color: #e6edf7;
-            font-weight: 700;
-            font-size: 1rem;
         }
-
-        .panel-sub {
-            margin: 0;
-            color: #9db0cf;
-            font-size: 0.92rem;
-        }
-
-        .result-card {
-            margin-top: 0.75rem;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: linear-gradient(180deg, rgba(17,28,52,0.92), rgba(11,18,32,0.92));
-            padding: 1rem;
-        }
-
-        .result-title {
-            margin: 0;
-            color: #f5f9ff;
-            font-size: clamp(1.1rem, 2vw, 1.4rem);
-            font-weight: 700;
-        }
-
-        .result-sub {
-            margin: 0.35rem 0 0 0;
-            color: #9db0cf;
-            font-size: 0.92rem;
-        }
-
-        .badge-row {
-            display: flex;
-            gap: 0.45rem;
-            flex-wrap: wrap;
-            margin-top: 0.7rem;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 999px;
-            padding: 0.26rem 0.62rem;
-            color: #d7fbe7;
-            background: rgba(34,197,94,0.14);
-            border: 1px solid rgba(34,197,94,0.45);
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .platform-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 0.65rem;
-            margin-top: 0.85rem;
-        }
-
-        .platform-btn {
-            text-decoration: none;
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            color: #06101f !important;
-            font-weight: 700;
-            font-size: 0.93rem;
-            background: linear-gradient(135deg, #34d399, #22c55e);
-            border: 1px solid rgba(0,0,0,0.16);
-        }
-
-        .platform-btn.alt {
-            color: #dbe7fb !important;
-            background: linear-gradient(135deg, #1e293b, #27344d);
-            border: 1px solid #3c4d6f;
-        }
-
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="input"] > div {
-            background: #0e162a !important;
-            border: 1px solid #334260 !important;
-            color: #e6edf7 !important;
-        }
-
-        div[data-baseweb="input"] input,
-        div[data-baseweb="select"] input {
-            color: #e6edf7 !important;
-        }
-
-        label p,
-        .stCheckbox label,
-        .stSlider label {
-            color: #c2d3ee !important;
-            font-weight: 600 !important;
-        }
-
-        .stCaption {
-            color: #9db0cf !important;
-        }
-
-        @media (max-width: 860px) {
-            .platform-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-
-        @media (max-width: 640px) {
-            section.main > div {
-                padding-left: 0.85rem;
-                padding-right: 0.85rem;
-                padding-top: 0.75rem;
-            }
-            .hero, .panel, .result-card {
-                border-radius: 12px;
-            }
-            .platform-grid { grid-template-columns: 1fr; }
-        }
+        section.main > div { max-width: 980px; padding-top: 0.6rem; }
+        .hero { border: 1px solid #25324d; border-radius: 18px; padding: 1.2rem; background: linear-gradient(130deg,#101828,#12325c); margin-bottom: .9rem; }
+        .hero h1 { margin:0; font-size: clamp(1.7rem,3vw,2.4rem); }
+        .hero p { margin:.55rem 0 0 0; color:#c5d8f7; }
+        .panel { margin-top:.6rem; }
+        .result-card { margin-top:.75rem; border:1px solid #25324d; border-radius:14px; background:#0f172a; padding:1rem; }
+        .result-title { margin:0; color:#f5f9ff; font-size:clamp(1.1rem,2vw,1.4rem); font-weight:700; }
+        .result-sub { margin:.35rem 0 0 0; color:#9db0cf; font-size:.92rem; }
+        .badge-row { display:flex; gap:.45rem; flex-wrap:wrap; margin-top:.7rem; }
+        .badge { border-radius:999px; padding:.26rem .62rem; color:#d7fbe7; background:rgba(34,197,94,.14); border:1px solid rgba(34,197,94,.45); font-size:.78rem; font-weight:700; }
+        .platform-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:.85rem; }
+        .platform-btn { text-decoration:none; min-height:44px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; color:#06101f !important; font-weight:700; background:linear-gradient(135deg,#34d399,#22c55e); border:1px solid rgba(0,0,0,.16); }
+        .platform-btn.alt { color:#dbe7fb !important; background:linear-gradient(135deg,#1e293b,#27344d); border:1px solid #3c4d6f; }
+        div[data-baseweb="select"] > div, div[data-baseweb="input"] > div { background:#0e162a !important; border:1px solid #334260 !important; color:#e6edf7 !important; }
+        div[data-baseweb="input"] input, div[data-baseweb="select"] input { color:#e6edf7 !important; }
+        label p, .stSlider label, .stCaption { color:#c2d3ee !important; }
+        @media (max-width:860px){ .platform-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+        @media (max-width:640px){ section.main > div { padding-left:.85rem; padding-right:.85rem; } .platform-grid{grid-template-columns:1fr;} }
         </style>
         """,
         unsafe_allow_html=True,
@@ -604,7 +454,7 @@ def main():
     )
 
     st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.markdown(f'<p class="panel-title">{html.escape(tr(lang, "intro"))}</p>', unsafe_allow_html=True)
+    st.write(tr(lang, "intro"))
     url = st.text_input(tr(lang, "url_label"), placeholder=tr(lang, "url_placeholder"))
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -612,19 +462,19 @@ def main():
         return
 
     if not is_supported_video_url(url):
-        st.error("Please use a TikTok or Instagram URL.")
+        st.error(tr(lang, "err_invalid_url"))
         return
 
     with st.spinner(tr(lang, "spin_analyze")):
-        audio_info, err = get_tiktok_audio_info(url)
-
-    if err:
-        st.error(tr(lang, "err_read", err=err))
-        return
+        try:
+            audio_info = get_video_audio_info(url)
+        except Exception as exc:
+            st.error(tr(lang, "err_read", err=exc))
+            return
 
     st.markdown('<div class="panel">', unsafe_allow_html=True)
-    st.markdown(f'<p class="panel-title">{html.escape(tr(lang, "preview_title"))}</p>', unsafe_allow_html=True)
-    st.markdown(f'<p class="panel-sub">{html.escape(tr(lang, "preview_caption"))}</p>', unsafe_allow_html=True)
+    st.markdown(f"### {tr(lang, 'preview_title')}")
+    st.caption(tr(lang, "preview_caption"))
 
     total_duration = int(audio_info.get("duration") or 0)
     max_start = max(total_duration - 10, 0)
@@ -637,21 +487,32 @@ def main():
         st.audio(preview_bytes, format="audio/mp3")
     elif preview_err:
         st.caption(tr(lang, "preview_error", err=preview_err))
-
     st.markdown("</div>", unsafe_allow_html=True)
 
     detection_label = tr(lang, "source_metadata")
+    track = audio_info.get("track")
+    artist = audio_info.get("artist")
+    title = audio_info.get("title")
 
-    fallback_queries = build_search_queries(audio_info)
-    queries, seen = [], set()
-    for q in fallback_queries:
-        n = q.lower().strip() if q else ""
-        if n and n not in seen:
-            queries.append(q)
-            seen.add(n)
+    if (not track or not artist or is_generic_track(track)):
+        with st.spinner(tr(lang, "spin_analyze")):
+            audio_match = recognize_song_from_audio(url)
+        if audio_match:
+            track = audio_match["title"]
+            artist = audio_match["artist"]
+            detection_label = tr(lang, "source_audio")
 
-    track, artist, title = audio_info.get("track"), audio_info.get("artist"), audio_info.get("title")
-    if track and artist and not is_generic_tiktok_track(track):
+    queries = build_search_queries({**audio_info, "track": track, "artist": artist})
+
+    if track and artist and not is_generic_track(track):
+        strong = [f"{track} {artist}", track, artist]
+        dedup, seen = [], set()
+        for q in strong + queries:
+            n = q.lower().strip()
+            if n and n not in seen:
+                dedup.append(q)
+                seen.add(n)
+        queries = dedup
         detected_text = f"{track} - {artist}"
     else:
         detected_text = title or tr(lang, "unknown")
@@ -699,11 +560,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-

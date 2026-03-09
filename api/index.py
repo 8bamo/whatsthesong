@@ -122,13 +122,10 @@ def clean_query(text: str | None) -> str:
     if not text:
         return ""
     text = re.sub(r"https?://\S+", " ", text)
-    text = text.replace("#", " ")
+    text = re.sub(r"#[^\\s]+", " ", text)
     text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
-
-def extract_hashtags(text: str | None) -> list[str]:
-    return re.findall(r"#([a-zA-Z0-9_\.]+)", text or "")
 
 
 def build_search_queries(audio_info: dict) -> list[str]:
@@ -148,13 +145,12 @@ def build_search_queries(audio_info: dict) -> list[str]:
         queries.append(artist)
     queries += [str(a) for a in artists[:2] if a]
 
-    for q in [clean_query(title), clean_query(description)]:
-        if q:
-            queries.append(q)
-
-    for tag in (extract_hashtags(title) + extract_hashtags(description))[:5]:
-        if len(tag) > 2:
-            queries.append(tag.replace(".", " "))
+    clean_title = clean_query(title)
+    clean_desc = clean_query(description)
+    if clean_title and not clean_title.lower().startswith("video by"):
+        queries.append(clean_title)
+    if clean_desc and len(clean_desc.split()) <= 6:
+        queries.append(clean_desc)
 
     out, seen = [], set()
     for q in queries:
@@ -359,3 +355,5 @@ def index_post(lang: str = Form("de"), url: str = Form("")):
         )
     except Exception as exc:
         return HTMLResponse(page(lang=lang, selected_url=url, error=str(exc)))
+
+
