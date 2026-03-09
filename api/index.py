@@ -348,7 +348,8 @@ def page(lang: str, selected_url: str = "", error: str = "", detected: str = "",
       }}
       .wrap {{ max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }}
       .hero {{ border: 1px solid #2b3a57; border-radius: 16px; padding: 18px; background: linear-gradient(140deg, #0d1423, #102846); }}
-      h1 {{ margin: 0; font-size: clamp(30px, 5vw, 44px); }}
+      .brand-logo-wrap {{ display:flex; justify-content:flex-start; }}
+      .brand-logo {{ width:min(420px,100%); height:auto; display:block; }}
       .sub {{ color: #adc3e7; margin-top: 8px; }}
       .panel {{ margin-top: 14px; padding: 14px; border: 1px solid #2b3a57; border-radius: 12px; background: #0f172a; }}
       label {{ display:block; font-weight:700; margin-bottom:6px; color:#d4e2f8; }}
@@ -369,7 +370,30 @@ def page(lang: str, selected_url: str = "", error: str = "", detected: str = "",
     <body>
       <main class="wrap">
         <section class="hero">
-          <h1>whatsthesong</h1>
+          <div class="brand-logo-wrap">
+            <svg class="brand-logo" viewBox="0 0 980 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="whatsthesong logo">
+              <defs>
+                <linearGradient id="logoGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#19b7ff"/>
+                  <stop offset="100%" stop-color="#2af598"/>
+                </linearGradient>
+                <linearGradient id="logoGradB" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#27d0ff"/>
+                  <stop offset="100%" stop-color="#8df570"/>
+                </linearGradient>
+              </defs>
+              <g transform="translate(20,10)">
+                <circle cx="130" cy="110" r="92" fill="none" stroke="url(#logoGradA)" stroke-width="14"/>
+                <path d="M30 106 C 85 120, 100 50, 145 96 C 178 130, 198 68, 240 104" fill="none" stroke="url(#logoGradB)" stroke-width="16" stroke-linecap="round"/>
+                <path d="M58 136 C 102 152, 125 92, 168 128 C 194 150, 216 110, 248 132" fill="none" stroke="#1dc7ff" stroke-opacity="0.55" stroke-width="10" stroke-linecap="round"/>
+                <path d="M190 72 Q 228 52 242 78" fill="none" stroke="#2af598" stroke-width="10" stroke-linecap="round"/>
+                <line x1="236" y1="48" x2="236" y2="90" stroke="url(#logoGradA)" stroke-width="10" stroke-linecap="round"/>
+                <circle cx="236" cy="96" r="14" fill="url(#logoGradA)"/>
+                <line x1="178" y1="170" x2="220" y2="214" stroke="url(#logoGradA)" stroke-width="16" stroke-linecap="round"/>
+              </g>
+              <text x="300" y="205" fill="#f6fbff" font-size="106" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-weight="700" letter-spacing="0.2">whatsthesong</text>
+            </svg>
+          </div>
           <p class="sub">{escape(tr(lang, "subtitle"))}</p>
         </section>
 
