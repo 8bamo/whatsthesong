@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse
 app = FastAPI()
 
 REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0 (whatsthesong vercel app)"}
-SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am")
+SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am", "youtube.com", "youtu.be", "music.youtube.com")
 GENERIC_TRACK_HINTS = {
     "original",
     "original sound",
@@ -34,12 +34,12 @@ LANG_OPTIONS = {
 
 I18N = {
     "de": {
-        "hero_sub": "TikTok/Instagram-Link rein, Song erkennen, Streaming-Links raus.",
-        "url_label": "TikTok/Instagram URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/... oder https://www.instagram.com/reel/...",
+        "hero_sub": "TikTok/Instagram/YouTube-Link rein, Song erkennen, Streaming-Links raus.",
+        "url_label": "TikTok/Instagram/YouTube URL",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... oder https://www.instagram.com/reel/... oder https://www.youtube.com/watch?v=...",
         "submit": "Suche starten",
         "err_read": "Fehler beim Auslesen des Links: {err}",
-        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfuegen.",
+        "err_invalid_url": "Bitte einen TikTok-, Instagram- oder YouTube-Link einfuegen.",
         "detected_source": "Erkennungsquelle: {source}",
         "source_metadata": "Metadaten",
         "source_audio": "Audio-Match",
@@ -52,12 +52,12 @@ I18N = {
         "unknown": "Unbekannt",
     },
     "en": {
-        "hero_sub": "Paste TikTok/Instagram link, detect song, get streaming links.",
-        "url_label": "TikTok/Instagram URL",
-        "url_placeholder": "https://www.tiktok.com/@user/video/... or https://www.instagram.com/reel/...",
+        "hero_sub": "Paste TikTok/Instagram/YouTube link, detect song, get streaming links.",
+        "url_label": "TikTok/Instagram/YouTube URL",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... or https://www.instagram.com/reel/... or https://www.youtube.com/watch?v=...",
         "submit": "Start search",
         "err_read": "Error reading link: {err}",
-        "err_invalid_url": "Please enter a TikTok or Instagram URL.",
+        "err_invalid_url": "Please enter a TikTok, Instagram, or YouTube URL.",
         "detected_source": "Detection source: {source}",
         "source_metadata": "Metadata",
         "source_audio": "Audio match",
@@ -70,12 +70,12 @@ I18N = {
         "unknown": "Unknown",
     },
     "fr": {
-        "hero_sub": "Colle un lien TikTok/Instagram, detecte la musique, recupere les liens.",
-        "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/... ou https://www.instagram.com/reel/...",
+        "hero_sub": "Colle un lien TikTok/Instagram/YouTube, detecte la musique, recupere les liens.",
+        "url_label": "URL TikTok/Instagram/YouTube",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... ou https://www.instagram.com/reel/... ou https://www.youtube.com/watch?v=...",
         "submit": "Lancer la recherche",
         "err_read": "Erreur de lecture du lien : {err}",
-        "err_invalid_url": "Saisis un lien TikTok ou Instagram.",
+        "err_invalid_url": "Saisis un lien TikTok, Instagram ou YouTube.",
         "detected_source": "Source de detection : {source}",
         "source_metadata": "Metadonnees",
         "source_audio": "Correspondance audio",
@@ -88,12 +88,12 @@ I18N = {
         "unknown": "Inconnu",
     },
     "es": {
-        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la cancion y obten enlaces.",
-        "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/... o https://www.instagram.com/reel/...",
+        "hero_sub": "Pega un enlace de TikTok/Instagram/YouTube, detecta la cancion y obten enlaces.",
+        "url_label": "URL TikTok/Instagram/YouTube",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... o https://www.instagram.com/reel/... o https://www.youtube.com/watch?v=...",
         "submit": "Iniciar busqueda",
         "err_read": "Error al leer el enlace: {err}",
-        "err_invalid_url": "Ingresa un enlace de TikTok o Instagram.",
+        "err_invalid_url": "Ingresa un enlace de TikTok, Instagram o YouTube.",
         "detected_source": "Fuente de deteccion: {source}",
         "source_metadata": "Metadatos",
         "source_audio": "Coincidencia de audio",
@@ -106,12 +106,12 @@ I18N = {
         "unknown": "Desconocido",
     },
     "it": {
-        "hero_sub": "Incolla il link TikTok/Instagram, rileva la canzone, ottieni i link.",
-        "url_label": "URL TikTok/Instagram",
-        "url_placeholder": "https://www.tiktok.com/@user/video/... oppure https://www.instagram.com/reel/...",
+        "hero_sub": "Incolla il link TikTok/Instagram/YouTube, rileva la canzone, ottieni i link.",
+        "url_label": "URL TikTok/Instagram/YouTube",
+        "url_placeholder": "https://www.tiktok.com/@user/video/... oppure https://www.instagram.com/reel/... oppure https://www.youtube.com/watch?v=...",
         "submit": "Avvia ricerca",
         "err_read": "Errore nella lettura del link: {err}",
-        "err_invalid_url": "Inserisci un link TikTok o Instagram.",
+        "err_invalid_url": "Inserisci un link TikTok, Instagram o YouTube.",
         "detected_source": "Fonte rilevamento: {source}",
         "source_metadata": "Metadati",
         "source_audio": "Corrispondenza audio",
@@ -422,30 +422,30 @@ def page(lang: str, url: str = "", error: str = "", detected_text: str = "", det
       <title>whatsthesong</title>
       <style>
       body {{ margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background: radial-gradient(700px 300px at 10% -10%, rgba(34,197,94,0.16), transparent 70%), radial-gradient(850px 400px at 100% 0%, rgba(6,182,212,0.18), transparent 65%), #060b16; color: #e6edf7; }}
-      .wrap {{ max-width: 980px; margin: 0 auto; padding: 10px 16px 40px; }}
+      .wrap {{ max-width: 980px; margin: 0 auto; padding: 10px 16px 40px; text-align:center; }}
       .hero {{ border: 1px solid #25324d; border-radius: 18px; padding: 1.2rem; background: linear-gradient(130deg,#101828,#12325c); margin-bottom: .9rem; }}
-      .brand-logo-wrap {{ display:flex; justify-content:flex-start; }}
+      .brand-logo-wrap {{ display:flex; justify-content:center; }}
       .brand-logo {{ width:min(420px,100%); height:auto; display:block; }}
-      .hero p {{ margin:.55rem 0 0 0; color:#c5d8f7; }}
+      .hero p {{ margin:.55rem 0 0 0; color:#c5d8f7; text-align:center; }}
       .panel {{ margin-top:1rem; border: 1px solid #2b3a57; border-radius: 12px; padding: 14px; background:#0f172a; }}
       .select-wrap {{ margin-bottom: .7rem; }}
       select, input {{ width: 100%; box-sizing: border-box; border:1px solid #334260; border-radius:10px; background:#0e162a; color:#e6edf7; padding: 11px; }}
-      label {{ display:block; margin: 0 0 6px 0; color:#c2d3ee; font-weight:700; }}
+      label {{ display:block; margin: 0 0 6px 0; color:#c2d3ee; font-weight:700; text-align:center; }}
       button {{ margin-top: 10px; width: 100%; border: 0; border-radius: 10px; padding: 11px; font-weight: 800; color: #06101f; background: linear-gradient(135deg,#34d399,#22c55e); cursor: pointer; }}
       .result-card {{ margin-top:1.25rem; border:1px solid #25324d; border-radius:14px; background:#0f172a; padding:1rem; }}
-      .result-title {{ margin:0; color:#f5f9ff; font-size:clamp(1.1rem,2vw,1.4rem); font-weight:700; }}
-      .result-sub {{ margin:.35rem 0 0 0; color:#9db0cf; font-size:.92rem; }}
-      .badge-row {{ display:flex; gap:.45rem; flex-wrap:wrap; margin-top:.7rem; }}
+      .result-title {{ margin:0; color:#f5f9ff; font-size:clamp(1.1rem,2vw,1.4rem); font-weight:700; text-align:center; }}
+      .result-sub {{ margin:.35rem 0 0 0; color:#9db0cf; font-size:.92rem; text-align:center; }}
+      .badge-row {{ display:flex; gap:.45rem; flex-wrap:wrap; margin-top:.7rem; justify-content:center; }}
       .badge {{ border-radius:999px; padding:.26rem .62rem; color:#d7fbe7; background:rgba(34,197,94,.14); border:1px solid rgba(34,197,94,.45); font-size:.78rem; font-weight:700; }}
       .query-box {{ margin-top: .8rem; border:1px solid #25324d; border-radius: 10px; padding: .55rem .7rem; background:#0f172a; }}
-      .query-box summary {{ cursor:pointer; color:#c2d3ee; font-weight:700; }}
-      .query-box ul {{ margin: .5rem 0 0 1rem; padding: 0; color:#9db0cf; }}
-      .platform-grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:1.25rem; margin-bottom:.85rem; }}
+      .query-box summary {{ cursor:pointer; color:#c2d3ee; font-weight:700; text-align:center; }}
+      .query-box ul {{ margin: .5rem 0 0 0; padding: 0; color:#9db0cf; list-style-position: inside; text-align:center; }}
+      .platform-grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:1.25rem; margin-bottom:.85rem; justify-items:center; }}
       .platform-btn {{ text-decoration:none; min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:.45rem; border-radius:10px; color:#06101f !important; font-weight:700; background:linear-gradient(135deg,#34d399,#22c55e); border:1px solid rgba(0,0,0,.16); }}
       .platform-btn.alt {{ color:#dbe7fb !important; background:linear-gradient(135deg,#1e293b,#27344d); border:1px solid #3c4d6f; }}
       .platform-icon {{ width:18px; height:18px; display:inline-block; text-align:center; line-height:18px; }}
       .caption {{ color:#9db0cf; margin: .55rem 0 0 0; }}
-      .cover {{ width: 320px; max-width: 100%; border-radius: 8px; border:1px solid #2b3a57; }}
+      .cover {{ width: 320px; max-width: 100%; border-radius: 8px; border:1px solid #2b3a57; display:block; margin: 0 auto; }}
       .err {{ margin-top:10px; color:#ffb3b3; }}
       .tip {{ margin-top:8px; color:#9db0cf; }}
       .footer {{ margin-top: 18px; color:#7f94b6; font-size:.86rem; text-align:center; }}
