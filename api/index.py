@@ -1,5 +1,6 @@
-﻿from html import escape
+from html import escape
 from urllib.parse import quote_plus, urlparse
+from difflib import SequenceMatcher
 import re
 
 import requests
@@ -20,11 +21,11 @@ GENERIC_TIKTOK_TRACK_HINTS = {
 SUPPORTED_VIDEO_HOST_HINTS = ("tiktok.com", "instagram.com", "instagr.am")
 
 LANG_OPTIONS = {
-    "de": "🇩🇪 Deutsch",
-    "en": "🇬🇧 English",
-    "fr": "🇫🇷 Francais",
-    "es": "🇪🇸 Espanol",
-    "it": "🇮🇹 Italiano",
+    "de": "\U0001F1E9\U0001F1EA Deutsch",
+    "en": "\U0001F1EC\U0001F1E7 English",
+    "fr": "\U0001F1EB\U0001F1F7 Francais",
+    "es": "\U0001F1EA\U0001F1F8 Espanol",
+    "it": "\U0001F1EE\U0001F1F9 Italiano",
 }
 
 I18N = {
@@ -122,10 +123,9 @@ def clean_query(text: str | None) -> str:
     if not text:
         return ""
     text = re.sub(r"https?://\S+", " ", text)
-    text = re.sub(r"#[^\\s]+", " ", text)
+    text = re.sub(r"#[^\s]+", " ", text)
     text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
-
 
 
 def build_search_queries(audio_info: dict) -> list[str]:
@@ -137,19 +137,19 @@ def build_search_queries(audio_info: dict) -> list[str]:
 
     queries: list[str] = []
     if track and artist and not is_generic_tiktok_track(track):
-        queries += [f"{track} {artist}", track]
+        queries += [f"{track} {artist}", track, artist]
     elif track and not is_generic_tiktok_track(track):
         queries.append(track)
-
-    if artist:
+    elif artist:
         queries.append(artist)
+
     queries += [str(a) for a in artists[:2] if a]
 
     clean_title = clean_query(title)
     clean_desc = clean_query(description)
     if clean_title and not clean_title.lower().startswith("video by"):
         queries.append(clean_title)
-    if clean_desc and len(clean_desc.split()) <= 6:
+    if clean_desc and len(clean_desc.split()) <= 5:
         queries.append(clean_desc)
 
     out, seen = [], set()
@@ -161,30 +161,94 @@ def build_search_queries(audio_info: dict) -> list[str]:
     return out[:8]
 
 
-def find_itunes_track_urls(query: str) -> list[str]:
+def normalize_text(text: str | None) -> str:
+    if not text:
+        return ""
+    text = text.lower().strip()
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def similarity(a: str | None, b: str | None) -> float:
+    na = normalize_text(a)
+    nb = normalize_text(b)
+    if not na or not nb:
+        return 0.0
+    return SequenceMatcher(None, na, nb).ratio()
+
+
+def score_candidate(candidate: dict, query: str, expected_track: str = "", expected_artist: str = "") -> float:
+    title = candidate.get("title") or ""
+    artist = candidate.get("artist") or ""
+
+    score = 0.0
+    score += similarity(f"{title} {artist}", query) * 1.2
+
+    if expected_track:
+        score += similarity(title, expected_track) * 2.2
+    if expected_artist:
+        score += similarity(artist, expected_artist) * 1.8
+
+    qn = normalize_text(query)
+    tn = normalize_text(title)
+    an = normalize_text(artist)
+    if qn and (qn in tn or qn in an or qn in f"{tn} {an}"):
+        score += 0.25
+
+    return score
+
+
+def find_itunes_candidates(query: str) -> list[dict]:
     try:
         res = requests.get(
-            f"https://itunes.apple.com/search?term={quote_plus(query)}&entity=song&limit=5",
+            f"https://itunes.apple.com/search?term={quote_plus(query)}&entity=song&limit=6",
             headers=REQUEST_HEADERS,
             timeout=12,
         )
         res.raise_for_status()
         data = res.json()
-        return [r.get("trackViewUrl") for r in data.get("results", []) if r.get("trackViewUrl")]
+
+        out = []
+        for r in data.get("results", []):
+            url = r.get("trackViewUrl")
+            if not url:
+                continue
+            out.append(
+                {
+                    "url": url,
+                    "title": r.get("trackName") or "",
+                    "artist": r.get("artistName") or "",
+                }
+            )
+        return out
     except requests.RequestException:
         return []
 
 
-def find_deezer_track_urls(query: str) -> list[str]:
+def find_deezer_candidates(query: str) -> list[dict]:
     try:
         res = requests.get(
-            f"https://api.deezer.com/search?q={quote_plus(query)}&limit=5",
+            f"https://api.deezer.com/search?q={quote_plus(query)}&limit=6",
             headers=REQUEST_HEADERS,
             timeout=12,
         )
         res.raise_for_status()
         data = res.json()
-        return [r.get("link") for r in data.get("data", []) if r.get("link")]
+
+        out = []
+        for r in data.get("data", []):
+            url = r.get("link")
+            if not url:
+                continue
+            artist_obj = r.get("artist") or {}
+            out.append(
+                {
+                    "url": url,
+                    "title": r.get("title") or "",
+                    "artist": artist_obj.get("name") or "",
+                }
+            )
+        return out
     except requests.RequestException:
         return []
 
@@ -206,16 +270,34 @@ def get_odesli_links_from_url(track_url: str):
         return None
 
 
-def get_streaming_links(queries: list[str]):
+def get_streaming_links(queries: list[str], expected_track: str = "", expected_artist: str = ""):
+    candidates = []
     for q in queries:
-        for url in find_itunes_track_urls(q):
-            links = get_odesli_links_from_url(url)
-            if links:
-                return links, q
-        for url in find_deezer_track_urls(q):
-            links = get_odesli_links_from_url(url)
-            if links:
-                return links, q
+        for cand in find_itunes_candidates(q):
+            candidates.append((score_candidate(cand, q, expected_track, expected_artist), q, cand["url"]))
+        for cand in find_deezer_candidates(q):
+            candidates.append((score_candidate(cand, q, expected_track, expected_artist), q, cand["url"]))
+
+    if not candidates:
+        return None, None
+
+    candidates.sort(key=lambda x: x[0], reverse=True)
+
+    if expected_track and expected_artist:
+        min_score = 1.45
+    elif expected_track or expected_artist:
+        min_score = 1.10
+    else:
+        min_score = 1.80
+
+    top = [c for c in candidates if c[0] >= min_score][:10]
+    if not top:
+        return None, None
+
+    for _score, query, url in top:
+        links = get_odesli_links_from_url(url)
+        if links:
+            return links, query
     return None, None
 
 
@@ -331,12 +413,13 @@ def index_post(lang: str = Form("de"), url: str = Form("")):
 
     try:
         audio_info = get_video_audio_info(url)
-        queries = build_search_queries(audio_info)
-        links_data, matched_query = get_streaming_links(queries)
-
         track = audio_info.get("track")
         artist = audio_info.get("artist")
         title = audio_info.get("title")
+
+        queries = build_search_queries(audio_info)
+        links_data, matched_query = get_streaming_links(queries, expected_track=track or "", expected_artist=artist or "")
+
         if track and artist and not is_generic_tiktok_track(track):
             detected_text = f"{track} - {artist}"
         else:
@@ -355,5 +438,3 @@ def index_post(lang: str = Form("de"), url: str = Form("")):
         )
     except Exception as exc:
         return HTMLResponse(page(lang=lang, selected_url=url, error=str(exc)))
-
-
