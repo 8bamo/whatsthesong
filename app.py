@@ -21,24 +21,24 @@ GENERIC_TRACK_HINTS = {
 }
 
 LANG_OPTIONS = {
-    "🇩🇪 Deutsch": "de",
-    "🇬🇧 English": "en",
-    "🇫🇷 Francais": "fr",
-    "🇪🇸 Espanol": "es",
-    "🇮🇹 Italiano": "it",
+    "\U0001F1E9\U0001F1EA Deutsch": "de",
+    "\U0001F1EC\U0001F1E7 English": "en",
+    "\U0001F1EB\U0001F1F7 Fran\u00e7ais": "fr",
+    "\U0001F1EA\U0001F1F8 Espa\u00f1ol": "es",
+    "\U0001F1EE\U0001F1F9 Italiano": "it",
 }
 
 I18N = {
     "de": {
         "hero_sub": "TikTok/Instagram-Link rein, Song erkennen, Streaming-Links raus.",
-        "intro": "FÃƒÂ¼ge einen TikTok- oder Instagram-Link ein.",
+        "intro": "Fuege einen TikTok- oder Instagram-Link ein.",
         "url_label": "TikTok/Instagram URL",
         "url_placeholder": "https://www.tiktok.com/@user/video/... oder https://www.instagram.com/reel/...",
         "submit": "Suche starten",
         "spin_analyze": "Analysiere Video...",
         "spin_links": "Suche Streaming-Links...",
         "err_read": "Fehler beim Auslesen des Links: {err}",
-        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfÃƒÂ¼gen.",
+        "err_invalid_url": "Bitte einen TikTok- oder Instagram-Link einfuegen.",
         "detected_source": "Erkennungsquelle: {source}",
         "source_metadata": "Metadaten",
         "source_audio": "Audio-Match",
@@ -47,12 +47,8 @@ I18N = {
         "expand_queries": "Verwendete Suchbegriffe",
         "err_no_links": "Keine Streaming-Links gefunden.",
         "tip_no_links": "Instagram liefert oft keine Song-Metadaten. Dann kann kein sicherer Match entstehen.",
-        "caption_match_query": "Treffer ÃƒÂ¼ber Suchbegriff: {query}",
+        "caption_match_query": "Treffer ueber Suchbegriff: {query}",
         "unknown": "Unbekannt",
-        "preview_title": "Audio-Preview",
-        "preview_caption": "Spiele 10 Sekunden aus dem Video-Audio ab.",
-        "preview_start": "Startsekunde",
-        "preview_error": "Audio-Preview konnte nicht geladen werden: {err}",
     },
     "en": {
         "hero_sub": "Paste TikTok/Instagram link, detect song, get streaming links.",
@@ -74,60 +70,48 @@ I18N = {
         "tip_no_links": "Instagram often has no song metadata. Then no reliable match is possible.",
         "caption_match_query": "Matched via query: {query}",
         "unknown": "Unknown",
-        "preview_title": "Audio preview",
-        "preview_caption": "Play 10 seconds from the video audio.",
-        "preview_start": "Start second",
-        "preview_error": "Could not load audio preview: {err}",
     },
     "fr": {
-        "hero_sub": "Colle un lien TikTok/Instagram, dÃƒÂ©tecte la musique, rÃƒÂ©cupÃƒÂ¨re les liens.",
+        "hero_sub": "Colle un lien TikTok/Instagram, d\u00e9tecte la musique, r\u00e9cup\u00e8re les liens.",
         "intro": "Colle un lien TikTok ou Instagram.",
         "url_label": "URL TikTok/Instagram",
         "url_placeholder": "https://www.tiktok.com/@user/video/... ou https://www.instagram.com/reel/...",
         "submit": "Lancer la recherche",
-        "spin_analyze": "Analyse de la vidÃƒÂ©o...",
+        "spin_analyze": "Analyse de la vid\u00e9o...",
         "spin_links": "Recherche des liens streaming...",
         "err_read": "Erreur de lecture du lien : {err}",
         "err_invalid_url": "Saisis un lien TikTok ou Instagram.",
-        "detected_source": "Source de dÃƒÂ©tection : {source}",
-        "source_metadata": "MÃƒÂ©tadonnÃƒÂ©es",
+        "detected_source": "Source de d\u00e9tection : {source}",
+        "source_metadata": "M\u00e9tadonn\u00e9es",
         "source_audio": "Correspondance audio",
-        "badge_queries": "RequÃƒÂªtes : {count}",
-        "badge_region": "RÃƒÂ©gion : DE",
-        "expand_queries": "Termes utilisÃƒÂ©s",
-        "err_no_links": "Aucun lien trouvÃƒÂ©.",
-        "tip_no_links": "Instagram n'a souvent pas de mÃƒÂ©tadonnÃƒÂ©es musicales fiables.",
-        "caption_match_query": "TrouvÃƒÂ© via : {query}",
+        "badge_queries": "Requ\u00eates : {count}",
+        "badge_region": "R\u00e9gion : DE",
+        "expand_queries": "Termes utilis\u00e9s",
+        "err_no_links": "Aucun lien trouv\u00e9.",
+        "tip_no_links": "Instagram n'a souvent pas de m\u00e9tadonn\u00e9es musicales fiables.",
+        "caption_match_query": "Trouv\u00e9 via : {query}",
         "unknown": "Inconnu",
-        "preview_title": "AperÃƒÂ§u audio",
-        "preview_caption": "Lire 10 secondes de l'audio.",
-        "preview_start": "Seconde de dÃƒÂ©part",
-        "preview_error": "Impossible de charger l'aperÃƒÂ§u : {err}",
     },
     "es": {
-        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la canciÃƒÂ³n y obtÃƒÂ©n enlaces.",
+        "hero_sub": "Pega un enlace de TikTok/Instagram, detecta la canci\u00f3n y obt\u00e9n enlaces.",
         "intro": "Pega un enlace de TikTok o Instagram.",
         "url_label": "URL TikTok/Instagram",
         "url_placeholder": "https://www.tiktok.com/@user/video/... o https://www.instagram.com/reel/...",
-        "submit": "Iniciar busqueda",
+        "submit": "Iniciar b\u00fasqueda",
         "spin_analyze": "Analizando video...",
         "spin_links": "Buscando enlaces...",
         "err_read": "Error al leer el enlace: {err}",
         "err_invalid_url": "Ingresa un enlace de TikTok o Instagram.",
-        "detected_source": "Fuente de detecciÃƒÂ³n: {source}",
+        "detected_source": "Fuente de detecci\u00f3n: {source}",
         "source_metadata": "Metadatos",
         "source_audio": "Coincidencia de audio",
-        "badge_queries": "BÃƒÂºsquedas: {count}",
-        "badge_region": "RegiÃƒÂ³n: DE",
-        "expand_queries": "TÃƒÂ©rminos usados",
+        "badge_queries": "B\u00fasquedas: {count}",
+        "badge_region": "Regi\u00f3n: DE",
+        "expand_queries": "T\u00e9rminos usados",
         "err_no_links": "No se encontraron enlaces.",
-        "tip_no_links": "Instagram muchas veces no tiene metadatos de canciÃƒÂ³n.",
+        "tip_no_links": "Instagram muchas veces no tiene metadatos de canci\u00f3n.",
         "caption_match_query": "Coincidencia por: {query}",
         "unknown": "Desconocido",
-        "preview_title": "Vista previa",
-        "preview_caption": "Reproduce 10 segundos de audio.",
-        "preview_start": "Segundo inicial",
-        "preview_error": "No se pudo cargar el audio: {err}",
     },
     "it": {
         "hero_sub": "Incolla il link TikTok/Instagram, rileva la canzone, ottieni i link.",
@@ -149,13 +133,8 @@ I18N = {
         "tip_no_links": "Instagram spesso non fornisce metadati audio affidabili.",
         "caption_match_query": "Trovato con: {query}",
         "unknown": "Sconosciuto",
-        "preview_title": "Anteprima audio",
-        "preview_caption": "Riproduci 10 secondi di audio.",
-        "preview_start": "Secondo iniziale",
-        "preview_error": "Impossibile caricare l'audio: {err}",
     },
 }
-
 
 def tr(lang: str, key: str, **kwargs) -> str:
     template = I18N.get(lang, I18N["en"]).get(key, key)
@@ -360,8 +339,9 @@ def inject_styles():
         .badge-row { display:flex; gap:.45rem; flex-wrap:wrap; margin-top:.7rem; }
         .badge { border-radius:999px; padding:.26rem .62rem; color:#d7fbe7; background:rgba(34,197,94,.14); border:1px solid rgba(34,197,94,.45); font-size:.78rem; font-weight:700; }
         .platform-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:1.25rem; margin-bottom:.85rem; }
-        .platform-btn { text-decoration:none; min-height:44px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; color:#06101f !important; font-weight:700; background:linear-gradient(135deg,#34d399,#22c55e); border:1px solid rgba(0,0,0,.16); }
+        .platform-btn { text-decoration:none; min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:.45rem; border-radius:10px; color:#06101f !important; font-weight:700; background:linear-gradient(135deg,#34d399,#22c55e); border:1px solid rgba(0,0,0,.16); }
         .platform-btn.alt { color:#dbe7fb !important; background:linear-gradient(135deg,#1e293b,#27344d); border:1px solid #3c4d6f; }
+        .platform-icon { width:18px; height:18px; display:inline-block; text-align:center; line-height:18px; }
         div[data-baseweb="select"] > div, div[data-baseweb="input"] > div { background:#0e162a !important; border:1px solid #334260 !important; color:#e6edf7 !important; }
         div[data-baseweb="input"] input, div[data-baseweb="select"] input { color:#e6edf7 !important; }
         label p, .stSlider label, .stCaption { color:#c2d3ee !important; }
@@ -375,26 +355,29 @@ def inject_styles():
 
 def render_platform_buttons(links: dict):
     platform_map = [
-        ("spotify", "Spotify", False),
-        ("appleMusic", "Apple Music", False),
-        ("youtube", "YouTube", False),
-        ("deezer", "Deezer", True),
-        ("soundcloud", "SoundCloud", True),
+        ("spotify", "Spotify", False, "&#9835;"),
+        ("appleMusic", "Apple Music", False, "&#127822;"),
+        ("youtube", "YouTube", False, "&#9654;"),
+        ("deezer", "Deezer", True, "&#9679;"),
+        ("soundcloud", "SoundCloud", True, "&#9729;"),
     ]
     buttons = []
-    for key, label, alt in platform_map:
+    for key, label, alt, icon in platform_map:
         url = links.get(key, {}).get("url")
         if url:
-            buttons.append(f'<a class="platform-btn{" alt" if alt else ""}" href="{url}" target="_blank" rel="noopener noreferrer">{label}</a>')
+            buttons.append(
+                f'<a class="platform-btn{" alt" if alt else ""}" href="{url}" target="_blank" rel="noopener noreferrer">'
+                f'<span class="platform-icon">{icon}</span><span>{label}</span></a>'
+            )
     if buttons:
         st.markdown(f'<div class="platform-grid">{"".join(buttons)}</div>', unsafe_allow_html=True)
 
 
 def main():
-    st.set_page_config(page_title="whatsthesong", page_icon="Ã°Å¸Å½Âµ", layout="centered")
+    st.set_page_config(page_title="whatsthesong", page_icon="\U0001F3B5", layout="centered")
     inject_styles()
 
-    language_label = st.selectbox("Language", list(LANG_OPTIONS.keys()), index=0)
+    language_label = st.selectbox("", list(LANG_OPTIONS.keys()), index=0, label_visibility="collapsed")
     lang = LANG_OPTIONS[language_label]
 
     st.markdown(
@@ -432,7 +415,6 @@ def main():
 
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     with st.form("search_form", clear_on_submit=False):
-        st.write(tr(lang, "intro"))
         url = st.text_input(tr(lang, "url_label"), placeholder=tr(lang, "url_placeholder"))
         submitted = st.form_submit_button(tr(lang, "submit"), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -523,9 +505,21 @@ def main():
         if thumbnail:
             st.image(thumbnail, width=320)
 
+    st.markdown("<div class='app-footer'>copyright bamo.ai 2026</div>", unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
 
 
 
