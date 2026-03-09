@@ -1,5 +1,6 @@
 from html import escape
 from urllib.parse import quote_plus, urlparse
+from difflib import SequenceMatcher
 import re
 import subprocess
 import tempfile
@@ -155,7 +156,6 @@ def get_video_audio_info(url: str):
             "title": info.get("title"),
             "description": info.get("description") or "",
             "artists": info.get("artists") or [],
-            "duration": info.get("duration") or 0,
         }
 
 
@@ -247,30 +247,78 @@ def build_search_queries(audio_info: dict) -> list[str]:
     return out[:8]
 
 
-def find_itunes_track_urls(query: str) -> list[str]:
+def normalize_text(text: str | None) -> str:
+    if not text:
+        return ""
+    text = text.lower().strip()
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def similarity(a: str | None, b: str | None) -> float:
+    na = normalize_text(a)
+    nb = normalize_text(b)
+    if not na or not nb:
+        return 0.0
+    return SequenceMatcher(None, na, nb).ratio()
+
+
+def score_candidate(candidate: dict, query: str, expected_track: str = "", expected_artist: str = "") -> float:
+    title = candidate.get("title") or ""
+    artist = candidate.get("artist") or ""
+
+    score = 0.0
+    score += similarity(f"{title} {artist}", query) * 1.2
+    if expected_track:
+        score += similarity(title, expected_track) * 2.2
+    if expected_artist:
+        score += similarity(artist, expected_artist) * 1.8
+
+    qn = normalize_text(query)
+    tn = normalize_text(title)
+    an = normalize_text(artist)
+    if qn and (qn in tn or qn in an or qn in f"{tn} {an}"):
+        score += 0.25
+    return score
+
+
+def find_itunes_candidates(query: str) -> list[dict]:
     try:
         response = requests.get(
-            f"https://itunes.apple.com/search?term={quote_plus(query)}&entity=song&limit=5",
+            f"https://itunes.apple.com/search?term={quote_plus(query)}&entity=song&limit=6",
             headers=REQUEST_HEADERS,
             timeout=15,
         )
         response.raise_for_status()
         data = response.json()
-        return [r.get("trackViewUrl") for r in data.get("results", []) if r.get("trackViewUrl")]
+        out = []
+        for item in data.get("results", []):
+            url = item.get("trackViewUrl")
+            if not url:
+                continue
+            out.append({"url": url, "title": item.get("trackName") or "", "artist": item.get("artistName") or ""})
+        return out
     except requests.RequestException:
         return []
 
 
-def find_deezer_track_urls(query: str) -> list[str]:
+def find_deezer_candidates(query: str) -> list[dict]:
     try:
         response = requests.get(
-            f"https://api.deezer.com/search?q={quote_plus(query)}&limit=5",
+            f"https://api.deezer.com/search?q={quote_plus(query)}&limit=6",
             headers=REQUEST_HEADERS,
             timeout=15,
         )
         response.raise_for_status()
         data = response.json()
-        return [r.get("link") for r in data.get("data", []) if r.get("link")]
+        out = []
+        for item in data.get("data", []):
+            url = item.get("link")
+            if not url:
+                continue
+            artist_obj = item.get("artist") or {}
+            out.append({"url": url, "title": item.get("title") or "", "artist": artist_obj.get("name") or ""})
+        return out
     except requests.RequestException:
         return []
 
@@ -292,16 +340,27 @@ def get_odesli_links_from_url(track_url: str):
         return None
 
 
-def get_streaming_links(queries: list[str]):
+def get_streaming_links(queries: list[str], expected_track: str = "", expected_artist: str = ""):
+    candidates = []
     for q in queries:
-        for url in find_itunes_track_urls(q):
-            links = get_odesli_links_from_url(url)
-            if links:
-                return links, q
-        for url in find_deezer_track_urls(q):
-            links = get_odesli_links_from_url(url)
-            if links:
-                return links, q
+        for cand in find_itunes_candidates(q):
+            candidates.append((score_candidate(cand, q, expected_track, expected_artist), q, cand["url"]))
+        for cand in find_deezer_candidates(q):
+            candidates.append((score_candidate(cand, q, expected_track, expected_artist), q, cand["url"]))
+
+    if not candidates:
+        return None, None
+
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    min_score = 1.45 if (expected_track and expected_artist) else 1.10
+    top = [c for c in candidates if c[0] >= min_score][:10]
+    if not top:
+        return None, None
+
+    for _score, q, url in top:
+        links = get_odesli_links_from_url(url)
+        if links:
+            return links, q
     return None, None
 
 
@@ -315,41 +374,24 @@ def render_platform_buttons(links: dict) -> str:
     ]
     buttons = []
     for key, label, alt, icon in platform_map:
-        url = links.get(key, {}).get("url")
-        if url:
+        purl = links.get(key, {}).get("url")
+        if purl:
             buttons.append(
-                f'<a class="platform-btn{" alt" if alt else ""}" href="{escape(url)}" target="_blank" rel="noopener noreferrer">'
+                f'<a class="platform-btn{" alt" if alt else ""}" href="{escape(purl)}" target="_blank" rel="noopener noreferrer">'
                 f'<span class="platform-icon">{icon}</span><span>{label}</span></a>'
             )
     return f'<div class="platform-grid">{"".join(buttons)}</div>' if buttons else ""
 
 
-def page(
-    lang: str,
-    url: str = "",
-    error: str = "",
-    detected_text: str = "",
-    detection_label: str = "",
-    query_count: int = 0,
-    queries: list[str] | None = None,
-    links: dict | None = None,
-    matched_query: str = "",
-    thumbnail_url: str = "",
-    tip: str = "",
-):
+def page(lang: str, url: str = "", error: str = "", detected_text: str = "", detection_label: str = "", query_count: int = 0, queries: list[str] | None = None, links: dict | None = None, matched_query: str = "", thumbnail_url: str = "", tip: str = ""):
     queries = queries or []
     links = links or {}
-    language_options = "".join(
-        f'<option value="{code}"{" selected" if code == lang else ""}>{label}</option>'
-        for code, label in LANG_OPTIONS.items()
-    )
+    language_options = "".join(f'<option value="{code}"{" selected" if code == lang else ""}>{label}</option>' for code, label in LANG_OPTIONS.items())
 
     result_block = ""
     if detected_text:
         query_items = "".join(f"<li>{escape(q)}</li>" for q in queries)
-        query_section = (
-            f'<details class="query-box"><summary>{escape(tr(lang, "expand_queries"))}</summary><ul>{query_items}</ul></details>' if queries else ""
-        )
+        query_section = f'<details class="query-box"><summary>{escape(tr(lang, "expand_queries"))}</summary><ul>{query_items}</ul></details>' if queries else ""
         matched = f'<p class="caption">{escape(tr(lang, "caption_match_query", query=matched_query))}</p>' if matched_query else ""
         thumbs = f'<img class="cover" src="{escape(thumbnail_url)}" alt="cover" />' if thumbnail_url else ""
 
@@ -379,14 +421,7 @@ def page(
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>whatsthesong</title>
       <style>
-      body {{
-        margin: 0;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        background: radial-gradient(700px 300px at 10% -10%, rgba(34,197,94,0.16), transparent 70%),
-                    radial-gradient(850px 400px at 100% 0%, rgba(6,182,212,0.18), transparent 65%),
-                    #060b16;
-        color: #e6edf7;
-      }}
+      body {{ margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background: radial-gradient(700px 300px at 10% -10%, rgba(34,197,94,0.16), transparent 70%), radial-gradient(850px 400px at 100% 0%, rgba(6,182,212,0.18), transparent 65%), #060b16; color: #e6edf7; }}
       .wrap {{ max-width: 980px; margin: 0 auto; padding: 10px 16px 40px; }}
       .hero {{ border: 1px solid #25324d; border-radius: 18px; padding: 1.2rem; background: linear-gradient(130deg,#101828,#12325c); margin-bottom: .9rem; }}
       .brand-logo-wrap {{ display:flex; justify-content:flex-start; }}
@@ -422,7 +457,7 @@ def page(
       <main class="wrap">
         <form method="post" action="/">
           <div class="select-wrap">
-            <select name="lang" aria-label="language">{language_options}</select>
+            <select name="lang" aria-label="language" onchange="window.location='/?lang='+this.value">{language_options}</select>
           </div>
           <div class="hero">
             <div class="brand-logo-wrap">
@@ -512,7 +547,7 @@ def index_post(lang: str = Form("de"), url: str = Form("")):
     else:
         detected_text = title or tr(lang, "unknown")
 
-    links_data, matched_query = get_streaming_links(queries)
+    links_data, matched_query = get_streaming_links(queries, expected_track=track or "", expected_artist=artist or "")
     if not links_data:
         return HTMLResponse(
             page(
